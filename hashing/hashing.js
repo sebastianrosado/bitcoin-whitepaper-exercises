@@ -32,6 +32,7 @@ function blockHash(bl) {
 	).digest("hex");
 }
 
+// console.log(Blockchain.blocks.length)
 // TODO: insert each line into blockchain
 var n = 1;
 for (let line of poem) {
@@ -40,18 +41,64 @@ for (let line of poem) {
 		prevHash: Blockchain["blocks"][n - 1]["hash"],
 		data: line,
 		timestamp: Date.now(),
-	})
-	Blockchain["blocks"][n]["hash"] = blockHash(Blockchain["blocks"][n])
+	});
+
+	Blockchain["blocks"][n]["hash"] = blockHash(Blockchain["blocks"][n]);
+
 	n += 1
 }
 
 console.log(Blockchain)
+// #############################
+// Part 2
 
+function verifyBlock(current_block) {
+	if (current_block["index"] !== 0) {
+		var prev_block = Blockchain["blocks"][current_block["index"] - 1];
+		var filtered_block = Object.fromEntries(
+			Object.entries(current_block).filter(e => e[0] != 'hash'));
 
-// console.log(`Blockchain is valid: ${verifyChain(Blockchain)}`);
+		const conditionsArray = [
+			(current_block["data"] !== null ||
+				current_block["data"] !== ""),
+			(current_block["prevHash"] !== null ||
+				current_block["prevHash"] !== ""),
+			(current_block["index"] >= 0),
+			(current_block["hash"] === blockHash(filtered_block)),
+			(current_block["prevHash"] === prev_block["hash"]),
+		]
 
-function verifyChain(Blockchain) {
+		if (!conditionsArray.includes(false)) {
+			console.log(`Block ${current_block['index']} Valid \n`)
+			return true
+		} else {
+			console.log(`Block ${current_block['index']} Invalid \n`)
+			return false
+		}
+	} else {
+		const conditionsArray = [
+			(current_block["data"] !== null ||
+				current_block["data"] !== ""),
+			(current_block["index"] >= 0),
+			(current_block["hash"] === "000000"),
+		]
 
+		if (!conditionsArray.includes(false)) {
+			console.log(`Block ${current_block['index']} Valid \n`)
+			return true
+		} else {
+			console.log(`Block ${current_block['index']} Valid \n`)
+			return false
+		}
+	}
 }
 
-// **********************************
+function verifyChain(Blockchain) {
+	for (let current_block of Blockchain["blocks"]) {
+		verifyBlock(current_block)
+	};
+	console.log(`Full Blockchain is Valid`)
+	return true
+}
+
+verifyChain(Blockchain)
